@@ -1,0 +1,48 @@
+WITH principal_sums AS (
+  SELECT
+    "Distribution Date",
+    ROUND(SUM("Scheduled Principal")::numeric, 2) AS total_scheduled_principal,
+    ROUND(SUM("Curtailments")::numeric, 2) AS total_curtailments,
+    ROUND(SUM("Prepayment")::numeric, 2) AS total_prepayments,
+    SUM("Repurchase Principal") AS total_repurchased_principal,
+    ROUND(SUM("Liquidation Principal")::numeric, 2) AS total_liquidation_principal,
+    SUM("Principal Recoveries") AS total_principal_recoveries,
+    (SUM("Scheduled Principal") +
+    SUM("Curtailments") +
+    SUM("Prepayment") +
+    SUM("Repurchase Principal") +
+    SUM("Liquidation Principal") +
+    SUM("Principal Recoveries")) -
+    (SUM("Master Servicing Fee") +
+    SUM("Servicing Fee") +
+    SUM("Trustee Fee") +
+    SUM("Insurance Fee") +
+    SUM("Special Servicing Fee") +
+    SUM("Other Fees")) AS net_principal_funds_available
+  FROM
+    enhanced_loan_level_dir
+  GROUP BY
+    "Distribution Date"
+)
+SELECT
+  TO_DATE(CAST(ps."Distribution Date" AS TEXT), 'YYYYMMDD') AS distribution_date_formatted,
+  tp.distributiondate AS tp_distribution_date,  
+  ps.total_scheduled_principal,
+  tp.scheduledprincipal AS reported_total_scheduled_principal,
+  ps.total_curtailments,
+  tp.curtailments AS reported_curtailments,
+  ps.total_prepayments,
+  tp.prepaymentsinfull AS reported_total_prepayments,  
+  ps.total_repurchased_principal,
+  ps.total_liquidation_principal,
+  tp.netliquidationproceeds AS reported_net_liquidation,
+  ps.total_principal_recoveries,
+  tp.totalprincipalfundsavailable AS reported_total_principal,
+  ps.net_principal_funds_available AS calculated_net_principal,
+  tp.totalprincipalfundsavailable - ps.net_principal_funds_available AS difference
+FROM
+   transformed_pdf tp
+JOIN
+  principal_sums ps
+ON
+  TO_CHAR(tp.distributiondate, 'YYYYMMDD')::BIGINT = ps."Distribution Date";

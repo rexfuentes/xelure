@@ -1,0 +1,13 @@
+
+
+Hello,
+
+This is to share with you the Proof of Concept (POC) for my  Data Engineering case study. This POC provides some introduction, explanation and insights into our findings and methodologies.
+
+For your convenience, please visit the following link to access the POC:
+
+https://docs.google.com/document/d/1CWBVWx--n5TB9u1qHyo1ooV5APCouMAC7ZvwS-ZJAdM/edit?usp=sharing
+
+Feel free to explore the repository and review the materials provided. 
+
+Thanks.
